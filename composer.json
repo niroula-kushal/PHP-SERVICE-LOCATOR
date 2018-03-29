@@ -1,5 +1,5 @@
 {
-    "name": "falcon/service-locator",
+    "name": "rehmat/service-locator",
     "description": "A simple dependency injection library",
     "type": "library",
     "authors": [
