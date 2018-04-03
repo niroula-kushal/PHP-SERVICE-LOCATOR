@@ -1,6 +1,6 @@
 {
     "name": "rehmat/service-locator",
-    "description": "A simple dependency injection library",
+    "description": "A simple dependency injection library for php",
     "type": "library",
     "authors": [
         {
