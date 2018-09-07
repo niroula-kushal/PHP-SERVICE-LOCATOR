@@ -18,6 +18,8 @@ use Rehmat\ServiceLocator\Exceptions\ServiceNotRegisteredException;
 
 class ServiceLocator implements ServiceLocatorInterface
 {
+	
+	CONST DEFAULT_MODE = 'default';
 
 	/**
 	* The singleton instance of ServiceLocator
@@ -45,11 +47,11 @@ class ServiceLocator implements ServiceLocatorInterface
 
 
 	/**
-	* @param string     path to the service 							$serviceKey   
-	* @param string     path to the service factory  					$serviceFactory
-	* @param string     the mode underwhich the mapping is required 	$mode
+	* @param string     path to the service 			$serviceKey   
+	* @param string     path to the service factory  		$serviceFactory
+	* @param string     the mode underwhich the mapping is required $mode
 	*/
-	public function register($serviceKey, $serviceFactory, $mode)
+	public function register($serviceKey, $serviceFactory, $mode = self::DEFAULT_MODE)
 	{
 		$this->services[$mode][$serviceKey] = $serviceFactory;
 		return $this;
@@ -61,7 +63,7 @@ class ServiceLocator implements ServiceLocatorInterface
 	* @return string | null The path to the mapped factory of the service or null    
 	*/
 
-	public function get($serviceKey, $mode)
+	public function get($serviceKey, $mode = self::DEFAULT_MODE)
 	{
 		if (isset($this->services[$mode][$serviceKey])) return $this->services[$mode][$serviceKey];
 		foreach ($this->services as $mode => $servicesList) {
@@ -76,7 +78,7 @@ class ServiceLocator implements ServiceLocatorInterface
 	* @return bool      True if a match is found, false otherwise
 	*/
 
-	public function has($serviceKey, $mode) : bool
+	public function has($serviceKey, $mode = self::DEFAULT_MODE) : bool
 	{
 		return $this->get($serviceKey, $mode) ? true : false;
 	}
@@ -89,7 +91,7 @@ class ServiceLocator implements ServiceLocatorInterface
 	* @throws ServiceNotRegisteredException
 	*/
 
-	public function create($serviceKey, $mode)
+	public function create($serviceKey, $mode = self::DEFAULT_MODE)
 	{
 		if (!$this->has($serviceKey, $mode)) throw new ServiceNotRegisteredException($serviceKey, $mode);
 
