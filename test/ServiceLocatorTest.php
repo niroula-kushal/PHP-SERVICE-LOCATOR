@@ -20,15 +20,15 @@ class ServiceLocatorTest extends TestCase
 		$value = "ServiceFactory";
 		$mode  = "dev";
 		$this->serviceLocator->register($key, $value, $mode);
-		$this->assertSame($this->serviceLocator->get($key, $mode), $value);
+		$this->assertSame($this->serviceLocator->getValue($key, $mode), $value);
 	}
 
-	public function testIfNoServiceMatch_get_ReturnsNull()
+	public function testIfNoServiceMatch_getValue_ReturnsNull()
 	{
-		$this->assertNull($this->serviceLocator->get("Hola","Bhola"));
+		$this->assertNull($this->serviceLocator->getValue("Hola","Bhola"));
 	}
 
-	public function test_getReturnsValue_evenWhenTheKeyIsPresentInAnotherMode()
+	public function test_getValue__ReturnsValue_evenWhenTheKeyIsPresentInAnotherMode()
 	{
 		$key = "serviceKey";
 		$value = "ServiceFactory";
@@ -38,7 +38,7 @@ class ServiceLocatorTest extends TestCase
 
 		$this->serviceLocator->register($key, $value, $mode);
 
-		$this->assertSame($this->serviceLocator->get($key, $differentMode), $value);
+		$this->assertSame($this->serviceLocator->getValue($key, $differentMode), $value);
 	}
 
 	public function test_whenNoServiceMatch_has_returnsFalse()
@@ -68,10 +68,10 @@ class ServiceLocatorTest extends TestCase
 		$this->assertTrue($this->serviceLocator->has($key, $differentMode));
 	}
 
-	public function test_whenNoServiceMatch_create_throwsException()
+	public function test_whenNoServiceMatch_get_throwsException()
 	{
 		$this->expectException(ServiceNotRegisteredException::class);
-		$this->serviceLocator->create("hola", "Bhola");
+		$this->serviceLocator->get("hola", "Bhola");
 	}
 
 	public function test_ServiceLocatorCannotBeInstantiatedWithNewKeyword()
@@ -93,10 +93,24 @@ class ServiceLocatorTest extends TestCase
 		$this->assertTrue($serviceLocator instanceof  ServiceLocator);
 	}
 
-	public function test_create_CallsTheInvokeMethodOfValue_whichIsAFactory()
+	public function test__get__returns_theReturnValueOfTheCallable_when_theValueIsCallable()
+	{
+		$returnVal = "You should have gone for the head";
+		$this->serviceLocator->register('hola', function() use ($returnVal) { return $returnVal; } );
+		$this->assertSame($returnVal, $this->serviceLocator->get('hola'));
+	}
+
+	public function test__get__returns_theValue_when_theValueIsNiether_Callable_nor_class()
+	{
+		$returnObj = new \StdClass();
+		$this->serviceLocator->register('hola', $returnObj);
+		$this->assertSame($returnObj, $this->serviceLocator->get('hola'));
+	}
+
+	public function test_get_CallsTheInvokeMethodOfValue_when_theValueIsClass()
 	{
 		$this->serviceLocator->register(\TestClasses\Interfaces\UserManager::class, \TestClasses\Factory\UserManagerFactory::class, "dev");
-		$this->assertTrue($this->serviceLocator->create(\TestClasses\Interfaces\UserManager::class, "dev") instanceof \TestClasses\UserManager );
+		$this->assertTrue($this->serviceLocator->get(\TestClasses\Interfaces\UserManager::class, "dev") instanceof \TestClasses\UserManager );
 	}
 
 }

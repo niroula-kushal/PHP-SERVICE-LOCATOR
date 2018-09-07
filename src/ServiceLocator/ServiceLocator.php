@@ -63,7 +63,7 @@ class ServiceLocator implements ServiceLocatorInterface
 	* @return string | null The path to the mapped factory of the service or null    
 	*/
 
-	public function get($serviceKey, $mode = self::DEFAULT_MODE)
+	public function getValue($serviceKey, $mode = self::DEFAULT_MODE)
 	{
 		if (isset($this->services[$mode][$serviceKey])) return $this->services[$mode][$serviceKey];
 		foreach ($this->services as $mode => $servicesList) {
@@ -80,7 +80,7 @@ class ServiceLocator implements ServiceLocatorInterface
 
 	public function has($serviceKey, $mode = self::DEFAULT_MODE) : bool
 	{
-		return $this->get($serviceKey, $mode) ? true : false;
+		return $this->getValue($serviceKey, $mode) ? true : false;
 	}
 
 	/**
@@ -91,13 +91,17 @@ class ServiceLocator implements ServiceLocatorInterface
 	* @throws ServiceNotRegisteredException
 	*/
 
-	public function create($serviceKey, $mode = self::DEFAULT_MODE)
+	public function get($serviceKey, $mode = self::DEFAULT_MODE)
 	{
 		if (!$this->has($serviceKey, $mode)) throw new ServiceNotRegisteredException($serviceKey, $mode);
 
-		$serviceFactoryPath = $this->get($serviceKey, $mode);
+		$value = $this->getValue($serviceKey, $mode);
 
-		$serviceFactory = new $serviceFactoryPath();
+		if(is_callable($value)) return $value();
+
+		if(!is_string($value)) return $value;
+
+		$serviceFactory = new $value();
 		$service = $serviceFactory();
 		return $service;
 	}
